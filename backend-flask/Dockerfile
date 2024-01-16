@@ -35,8 +35,8 @@ EXPOSE ${port}
 
 
 # Run the command after the container is created
-# command: python3 -m flask run --host=0.0.0.0 --port=4567
-CMD [ "python3", "-m" , "flask", "run", "--host=0.0.0.0", "--port=4567"]
+# command: python -m flask run --host=0.0.0.0 --port=4567
+CMD [ "python", "-m" , "flask", "run", "--host=0.0.0.0", "--port=4567"]
 
 
 

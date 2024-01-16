@@ -1,0 +1,116 @@
+version: "3.8"
+
+services:
+# services is a keyword that indicates that we are going to create a super container that contains other containers inside it 
+# name of the service is the name of the directory that contains the Docker-compose.yml file
+# change the name? -> 3 ways
+    # 1. change the name of the directory
+    # 2. Run the command: docker compose -p <new_name> up   ---    compose down command will change to: docker compose -p <new_name> down
+    # 3. ADD: COMPOSE_PROJECT_NAME=<new_name> in the .env file (should not contain any spaces around the '=' sign)
+
+
+    # 1st container
+    backend-flask:
+    # backend-flask is the name of the container inside the super container
+
+        # environment variables that will be used inside the container
+        environment:
+            # FRONTEND_URL: "https://3000-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
+            # BACKEND_URL: "https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
+            BACKEND_URL: "http://localhost:4567"
+            FRONTEND_URL: "http://localhost:3000"
+    
+        build: ./backend-flask
+        # build means to build the image from the Dockerfile in the current directory
+        # . means the current directory
+        # ./backend-flask means the testProject directory in the current directory
+        # it will look for the Dockerfile in the backend-flask directory
+
+        ports:
+            - "4567:4567"
+        # 1st 4567 is the port of the host machine
+        # 2nd 4567 is the port of the container
+        # this means that the host machine can access the container through port 4567 (1st)
+        # run localhost:4567 to access the container
+        # the container is running on port 4567 (2nd)
+
+        volumes:
+            - ./backend-flask:/backend-flask
+        # this means that the host machine can access the container through the backend-flask directory
+        # 1st backend-flask is the directory of the host machine
+        # 2nd backend-flask is the directory of the container
+        # : is the separator
+        # SEE (A1) for why we didnt write this as ./backend-flask : ./backend-flask
+
+        networks:
+            - internal-network
+        # this means that the container is connected to the internal-network (it is a name of a network that we created below)
+    
+    
+    
+
+    # 2nd container
+    frontend-react-js:
+        environment:
+            # REACT_APP_BACKEND_URL: "https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
+            REACT_APP_BACKEND_URL: "http://localhost:4567"
+        build: ./frontend-react-js
+        ports:
+            - "3000:3000"
+        volumes:
+            - ./frontend-react-js:/frontend-react-js
+        networks:
+            - internal-network
+    
+
+
+# the name flag is a hack to change the default prepend folder
+# name when outputting the image names
+
+
+
+
+
+
+
+# The networks keyword in a Docker Compose file is used to define custom networks. 
+networks: 
+# Networks in Docker are like virtual switches to which containers connect. 
+# By default, every container that Docker runs is connected to a default network.
+    
+    internal-network:
+    # In your Docker Compose file, you're defining a custom network named internal-network
+        
+        driver: bridge
+        # driver: This specifies the type of network to be created. 
+        # The bridge driver creates a private network internal to the host so containers on this network can communicate. 
+        # Other drivers include host (for no isolation between container and host), overlay (for multi-host networking), and none (for no networking).
+        
+        name: cruddur
+        # name: This is used to specify a custom name for the network. 
+        # This can be useful for more easily identifying the network among others when running Docker network commands.
+
+
+
+
+
+
+
+
+
+# -------------------------------------------- (A1) -------------------------------------------- #
+
+# In Docker, the volume mapping syntax is host_directory:container_directory.
+
+# In your case, ./backend-flask:/backend-flask means that the backend-flask 
+# directory in your host machine (where your docker-compose file resides) is 
+# mapped to the /backend-flask directory in the Docker container.
+
+# The reason you didn't write ./backend-flask:./backend-flask is because the 
+# paths inside the Docker container are absolute, not relative. The . in a file 
+# path denotes the current directory, but in a Docker container, the filesystem 
+# starts at / (root), so there's no parent directory to be relative to.
+
+# So, /backend-flask is the correct way to specify the path in the container.
+
+# --------------------------------------------------------------------------------------------- #
