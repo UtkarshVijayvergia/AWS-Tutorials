@@ -15,8 +15,6 @@ services:
 
         # environment variables that will be used inside the container
         environment:
-            # FRONTEND_URL: "https://3000-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
-            # BACKEND_URL: "https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
             BACKEND_URL: "http://localhost:4567"
             FRONTEND_URL: "http://localhost:3000"
     
@@ -45,15 +43,17 @@ services:
         networks:
             - internal-network
         # this means that the container is connected to the internal-network (it is a name of a network that we created below)
-    
-    
-    
+
+
 
     # 2nd container
     frontend-react-js:
         environment:
-            # REACT_APP_BACKEND_URL: "https://4567-${GITPOD_WORKSPACE_ID}.${GITPOD_WORKSPACE_CLUSTER_HOST}"
             REACT_APP_BACKEND_URL: "http://localhost:4567"
+            CHOKIDAR_USEPOLLING: "true"
+            # CHOKIDAR_USEPOLLING=true is needed for hot reloading to work in Docker  
+            WATCHPACK_POLLING: "true"
+            # WATCHPACK_POLLING=true is needed for hot reloading to work in Docker  (chowkidar was not working for me so used this)
         build: ./frontend-react-js
         ports:
             - "3000:3000"
@@ -61,14 +61,6 @@ services:
             - ./frontend-react-js:/frontend-react-js
         networks:
             - internal-network
-    
-
-
-# the name flag is a hack to change the default prepend folder
-# name when outputting the image names
-
-
-
 
 
 
@@ -89,8 +81,6 @@ networks:
         name: cruddur
         # name: This is used to specify a custom name for the network. 
         # This can be useful for more easily identifying the network among others when running Docker network commands.
-
-
 
 
 
