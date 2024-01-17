@@ -28,9 +28,12 @@ COPY . .
 # Set the environment variables for the container
 # These environment variables will be set inside the container
 ENV FLASK_ENV=development
+ENV FLASK_RUN_RELOAD=1       
+# reload the server when the code changes
 
 
 # EXPOSE - Describe which ports your application is listening on inside the container
+# EXPOSE command is used to expose the port 4567 of the container to the host machine
 EXPOSE ${port}
 
 
