@@ -1,0 +1,100 @@
+1. Download AWS X-Ray SDK for Python
+
+pip install aws-xray-sdk
+
+
+################################################################################3
+
+2. Add this middleware in the app.py or main file.
+
+    from aws_xray_sdk.core import xray_recorder
+    from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
+
+    app = Flask(__name__)
+    xray_recorder.configure(service='MyApllication')
+    XRayMiddleware(app, xray_recorder)
+
+
+################################################################################
+
+3. Create a group in X-Ray (if wanted a new group) (RUN THIS COMMAND IN CDM AND NOT IN POWERSHELL)
+
+    aws xray create-group --group-name "Crudder" --filter-expression "service(\"backend-flask\")
+
+
+Info:
+1. --group-name "Crudder": This option specifies the name of the group that you're creating. 
+In this case, the name of the group is "Crudder".
+
+
+2. --filter-expression "service(\"backend-flask\")": This option specifies the filter expression for the group. 
+In this case, the filter expression is service("backend-flask"), which means that the group will include 
+traces from the service named "backend-flask".
+
+You can also keep the name of the service in step 2 line 16
+
+
+    OR
+
+
+- create a json file (HERE - aws/json/xray-create-group.json)                
+
+- run this command
+    aws xray create-group --cli-input-json file://C:/Users/utkar/OneDrive/Desktop/AWS-Tutorials/aws/json/xray-create-group.json
+
+
+################################################################################3
+
+4. Create Sampling-rules (if required)
+
+- make a json file (HERE - aws/json/xray-smapling-rules.json)
+
+- run this command:
+    aws xray create-sampling-rule --cli-input-json file://C:/Users/utkar/OneDrive/Desktop/AWS-Tutorials/aws/json/xray-smapling-rules.json
+
+
+
+
+################################################################################
+
+4. Add docker X-Ray daemon image in docker-compose.yml
+
+xray-daemon:
+    image: amazon/aws-xray-daemon
+    # image means that we are using an image from docker hub
+    environment:
+        AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
+        AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
+        AWS_REGION: "${AWS_REGION}"
+        # "${}" means that we are using an environment variable from the .env file present in the same directory as the Docker-compose.yml file
+    command:
+        - "xray -o -b xray-daemon:2000"
+    ports:
+        - 2000:2000/udp
+    networks:
+        - internal-network
+
+
+################################################################################
+
+5. Add environment variables values used in docker-compose.yml in .env file that is present in the same directory
+
+    AWS_ACCESS_KEY_ID=...
+    AWS_SECRET_ACCESS_KEY=...
+    AWS_REGION=...
+
+
+################################################################################
+
+6. Add this in the .env of backend-flask directory
+
+    AWS_XRAY_URL="*4567*"
+    AWS_XRAY_DAEMON_ADDRESS="xray-daemon:2000"
+
+
+4567 is the post where backend is running
+
+
+################################################################################
+
+7. docker compose up (--build it also)

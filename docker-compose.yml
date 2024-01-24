@@ -61,8 +61,23 @@ services:
             - ./frontend-react-js:/frontend-react-js
         networks:
             - internal-network
+    
 
-
+    # 3rd container
+    xray-daemon:
+        image: amazon/aws-xray-daemon
+        # image means that we are using an image from docker hub
+        environment:
+            AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
+            AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
+            AWS_REGION: "${AWS_REGION}"
+            # "${}" means that we are using an environment variable from the .env file present in the same directory as the Docker-compose.yml file
+        command:
+            - "xray -o -b xray-daemon:2000"
+        ports:
+            - 2000:2000/udp
+        networks:
+            - internal-network
 
 
 # The networks keyword in a Docker Compose file is used to define custom networks. 

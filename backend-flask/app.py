@@ -16,7 +16,14 @@ from services.messages import *
 from services.create_message import *
 from services.show_activity import *
 
+# AWS X-Ray middleware for Flask
+from aws_xray_sdk.core import xray_recorder
+from aws_xray_sdk.ext.flask.middleware import XRayMiddleware
+
+
+
 app = Flask(__name__)
+# Flask(__name__) is the name of the current Python module. The app needs to know where it’s located to set up some paths, and __name__ is a convenient way to tell it that.
 frontend = os.getenv('FRONTEND_URL')
 backend = os.getenv('BACKEND_URL')
 origins = [frontend, backend]
@@ -27,6 +34,20 @@ cors = CORS(
   allow_headers="content-type,if-modified-since",
   methods="OPTIONS,GET,HEAD,POST"
 )
+
+
+# AWS X-Ray middleware for Flask
+# app = Flask(__name__)   -> already wrote this line above
+xray_url = os.getenv('AWS_XRAY_URL')
+xray_recorder.configure(service='backend-flask', dynamic_naming=xray_url)
+# Configure the X-Ray recorder to use the name of your application as the service name.
+# The service name is used to identify different microservices in your application.
+# dynamic_naming; Read this - https://docs.aws.amazon.com/xray/latest/devguide/xray-sdk-python-middleware.html#xray-sdk-python-middleware-naming
+XRayMiddleware(app, xray_recorder)
+# Wrap the Flask object with the X-Ray middleware, passing in the Flask app and the X-Ray recorder object.
+# X-Ray recorder object is used to store data about incoming and outgoing requests.
+
+
 
 @app.route("/api/message_groups", methods=['GET'])
 def data_message_groups():
