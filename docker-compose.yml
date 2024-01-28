@@ -54,6 +54,11 @@ services:
             # CHOKIDAR_USEPOLLING=true is needed for hot reloading to work in Docker  
             WATCHPACK_POLLING: "true"
             # WATCHPACK_POLLING=true is needed for hot reloading to work in Docker  (chowkidar was not working for me so used this)
+            REACT_AWS_PROJECT_REGION: "${REACT_AWS_PROJECT_REGION}"
+            REACT_APP_AWS_COGNITO_REGION: "${REACT_APP_AWS_COGNITO_REGION}"
+            REACT_APP_AWS_USER_POOLS_ID: "${REACT_APP_AWS_USER_POOLS_ID}"
+            REACT_APP_CLIENT_ID: "${REACT_APP_CLIENT_ID}"
+            REACT_APP_AWS_USER_POOLS_WEB_CLIENT_ID: "${REACT_APP_AWS_USER_POOLS_WEB_CLIENT_ID}"
         build: ./frontend-react-js
         ports:
             - "3000:3000"
@@ -64,20 +69,20 @@ services:
     
 
     # 3rd container
-    xray-daemon:
-        image: amazon/aws-xray-daemon
-        # image means that we are using an image from docker hub
-        environment:
-            AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
-            AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
-            AWS_REGION: "${AWS_REGION}"
-            # "${}" means that we are using an environment variable from the .env file present in the same directory as the Docker-compose.yml file
-        command:
-            - "xray -o -b xray-daemon:2000"
-        ports:
-            - 2000:2000/udp
-        networks:
-            - internal-network
+    # xray-daemon:
+    #     image: amazon/aws-xray-daemon
+    #     # image means that we are using an image from docker hub
+    #     environment:
+    #         AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID}"
+    #         AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY}"
+    #         AWS_REGION: "${AWS_REGION}"
+    #         # "${}" means that we are using an environment variable from the .env file present in the same directory as the Docker-compose.yml file
+    #     command:
+    #         - "xray -o -b xray-daemon:2000"
+    #     ports:
+    #         - 2000:2000/udp
+    #     networks:
+    #         - internal-network
 
 
 # The networks keyword in a Docker Compose file is used to define custom networks. 
